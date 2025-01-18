@@ -1,4 +1,5 @@
 import React, { createContext, useReducer, useContext, ReactNode } from 'react';
+import { TaskStatus } from '@/types/TaskStatus';
 import { Task } from '@/types/Task';
 
 // Define the state shape
@@ -8,9 +9,9 @@ interface TaskState {
 
 // Hard-coded mock data for tasks
 const mockTasks: Task[] = [
-  { id: 1, title: 'Task One', description: 'This is the first task', status: 'pending' },
-  { id: 2, title: 'Task Two', description: 'This is the second task', status: 'complete' },
-  { id: 3, title: 'Task Three', description: 'This is the third task', status: 'pending' },
+  { id: 1, title: 'Task One', description: 'This is the first task', status: TaskStatus.PENDING },
+  { id: 2, title: 'Task Two', description: 'This is the second task', status: TaskStatus.COMPLETE },
+  { id: 3, title: 'Task Three', description: 'This is the third task', status: TaskStatus.PENDING },
 ];
 
 // Initial state
