@@ -9,10 +9,6 @@ const TaskAddForm = () => {
   const [description, setDescription] = useState("");
 
   const handleAddTask = () => {
-    if (!title.trim() || !description.trim()) {
-      Alert.alert("Error", "Both title and description are required!");
-      return;
-    }
 
     actions.addTask({
       id: Date.now(), // Generate a unique ID
@@ -20,7 +16,6 @@ const TaskAddForm = () => {
       description,
       status: TaskStatus.PENDING, // Add a default status
     });
-    Alert.alert("Success", "Add Task succesfully.");
     setTitle(""); // Clear form inputs
     setDescription("");
     Keyboard.dismiss(); // Dismiss keyboard after adding a task
