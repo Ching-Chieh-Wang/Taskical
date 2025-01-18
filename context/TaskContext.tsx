@@ -18,23 +18,59 @@ const initialState: TaskState = {
   tasks: mockTasks,
 };
 
-// Reducer function (no actions for now)
-const taskReducer = (state: TaskState): TaskState => {
-  return state; // Simply returns the state as-is
+// Define action types as an enum
+enum TaskActionType {
+  ADD_TASK = 'ADD_TASK',
+}
+
+// Define the action shape
+type TaskAction = {
+  type: TaskActionType.ADD_TASK;
+  payload: Task;
+};
+
+// Reducer function
+const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
+  switch (action.type) {
+    case TaskActionType.ADD_TASK:
+      return {
+        ...state,
+        tasks: [...state.tasks, action.payload],
+      };
+    default:
+      return state;
+  }
 };
 
 // Context definition
 const TaskContext = createContext<{
   state: TaskState;
+  actions: {
+    addTask: (task: Task) => void;
+  };
 }>({
   state: initialState,
+  actions: {
+    addTask: () => {},
+  },
 });
 
 // Provider component
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
-  const [state] = useReducer(taskReducer, initialState);
+  const [state, dispatch] = useReducer(taskReducer, initialState);
 
-  return <TaskContext.Provider value={{ state }}>{children}</TaskContext.Provider>;
+  // Define the actions object
+  const actions = {
+    addTask: (task: Task) => {
+      dispatch({ type: TaskActionType.ADD_TASK, payload: task });
+    },
+  };
+
+  return (
+    <TaskContext.Provider value={{ state, actions }}>
+      {children}
+    </TaskContext.Provider>
+  );
 };
 
 // Custom hook for consuming the context
