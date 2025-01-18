@@ -38,4 +38,10 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // Custom hook for consuming the context
-export const useTaskContext = () => useContext(TaskContext);
+export const useTaskContext = () => {
+  const context = useContext(TaskContext);
+  if(!context){
+    throw new Error('useTaskContext must be used inside the TaskProvider')
+  }
+  return context;
+}
