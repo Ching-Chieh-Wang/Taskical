@@ -79,7 +79,10 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   // Define the actions object
   const actions = {
     addTask: (task: Task) => {
-      dispatch({ type: TaskActionType.ADD_TASK, payload: task });
+      if(validateTaskInput(task)){
+        Alert.alert("Success", "Add Task succesfully.");
+        dispatch({ type: TaskActionType.ADD_TASK, payload: task });
+      }
     },
     updateTaskStatus: (idx: number, status: TaskStatus) => {
       dispatch({ type: TaskActionType.UPDATE_TASK_STATUS, payload: { idx, status } });
@@ -91,6 +94,15 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </TaskContext.Provider>
   );
+};
+
+const validateTaskInput = (task: Task): boolean => {
+  const { title, description } = task;
+  if (title.trim() === '' || description.trim() === '') {
+    alert('Title and description cannot be empty.');
+    return false;
+  }
+  return true;
 };
 
 // Custom hook for consuming the context
