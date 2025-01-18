@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext, ReactNode } from 'react';
+import React, { createContext, useReducer, useContext, ReactNode, act } from 'react';
 import { Alert } from "react-native";
 import { TaskStatus } from '@/types/TaskStatus';
 import { Task } from '@/types/Task';
@@ -28,7 +28,8 @@ enum TaskActionType {
   UPDATE_TASK_STATUS = 'UPDATE_TASK_STATUS',
   START_EDITING_TASK = 'START_EDITING_TASK',
   END_EDITING_TASK = 'END_EDITING_TASK',
-  UPDATE_TASK = 'UPDATE_TASK'
+  UPDATE_TASK = 'UPDATE_TASK',
+  DELETE_TASK = 'DELETE_TASK'
 }
 
 // Define the action shape
@@ -38,6 +39,7 @@ type TaskAction =
   | { type: TaskActionType.START_EDITING_TASK; payload: { index: number; } }
   | { type: TaskActionType.END_EDITING_TASK; }
   | { type: TaskActionType.UPDATE_TASK; payload: Task }
+  | { type: TaskActionType.DELETE_TASK; payload: number }
 
 // Reducer function
 const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
@@ -73,7 +75,17 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
         tasks: updatedTasks
       }
     }
-
+    case TaskActionType.DELETE_TASK: {
+      const idx = action.payload;
+      const updatedTasks = [
+        ...state.tasks.slice(0, idx), // All elements before the index
+        ...state.tasks.slice(idx + 1), // All elements after the index
+      ];
+      return {
+        ...state,
+        tasks: updatedTasks,
+      };
+    }
     default:
       return state;
   }
@@ -88,6 +100,7 @@ const TaskContext = createContext<{
     startEditingTask: (idx: number) => void;
     endEditingTask: () => void;
     updateTask: (task: Task) => void;
+    deleteTask: (idx: number) =>void;
   };
 }>({
   state: initialState,
@@ -97,6 +110,7 @@ const TaskContext = createContext<{
     startEditingTask: () => { },
     endEditingTask: () => { },
     updateTask: () => { },
+    deleteTask: ()=>{},
   },
 });
 
@@ -128,6 +142,9 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: TaskActionType.UPDATE_TASK, payload: task });
         dispatch({type: TaskActionType.END_EDITING_TASK});
       }
+    },
+    deleteTask: (idx: number)=>{
+      dispatch({type: TaskActionType.DELETE_TASK, payload:idx});
     }
   };
 
