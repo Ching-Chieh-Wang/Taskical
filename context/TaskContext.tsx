@@ -83,7 +83,7 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
 const TaskContext = createContext<{
   state: TaskState;
   actions: {
-    addTask: (task: Task) => void;
+    addTask: (task: Task) => boolean;
     updateTaskStatus: (idx:number, status: TaskStatus) => void;
     startEditingTask: (idx: number) => void;
     endEditingTask: () => void;
@@ -92,7 +92,7 @@ const TaskContext = createContext<{
 }>({
   state: initialState,
   actions: {
-    addTask: () => { },
+    addTask: () => {return false},
     updateTaskStatus: () => { },
     startEditingTask: () => { },
     endEditingTask: () => { },
@@ -110,7 +110,9 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       if(validateTaskInput(task)){
         Alert.alert("Success", "Add Task succesfully.");
         dispatch({ type: TaskActionType.ADD_TASK, payload: task });
+        return true;
       }
+      return false;
     },
     updateTaskStatus: (idx: number, status: TaskStatus) => {
       dispatch({ type: TaskActionType.UPDATE_TASK_STATUS, payload: { idx, status } });
