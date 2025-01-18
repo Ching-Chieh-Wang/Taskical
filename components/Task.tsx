@@ -1,7 +1,7 @@
 import { Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { useTaskContext } from '@/context/TaskContext';
-import { TaskStatus } from '@/types/TaskStatus';
+import TaskActionNav from './TaskActionNav';
 import TaskStatusComponent from './TaskStatusComponent';
 
 const Task = ({ index }: { index: number }) => {
@@ -11,11 +11,12 @@ const Task = ({ index }: { index: number }) => {
 
 
   return (
-    <View className="gap-y-2 p-4 my-2 border-gray-300 border-2 rounded-2xl">
-      {/* Task Title */}
-      <Text className="font-bold">{title}</Text>
+    <View className="flex gap-y-2 p-4  border-gray-300 border-2 rounded-2xl">
+      <View className='flex-row justify-between items-center'>
+        <Text className="font-bold">{title}</Text>
+        <TaskActionNav index={index}/>
+      </View>
 
-      {/* Task Description */}
       <Text>{description}</Text>
 
       <TaskStatusComponent index={index}/>
