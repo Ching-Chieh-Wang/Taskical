@@ -22,13 +22,13 @@ const initialState: TaskState = {
 // Define action types as an enum
 enum TaskActionType {
   ADD_TASK = 'ADD_TASK',
+  UPDATE_TASK_STATUS = 'UPDATE_TASK_STATUS',
 }
 
 // Define the action shape
-type TaskAction = {
-  type: TaskActionType.ADD_TASK;
-  payload: Task;
-};
+type TaskAction =
+  | { type: TaskActionType.ADD_TASK; payload: Task }
+  | { type: TaskActionType.UPDATE_TASK_STATUS; payload: { id: number; status: TaskStatus } };
 
 // Reducer function
 const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
@@ -37,6 +37,13 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
       return {
         ...state,
         tasks: [...state.tasks, action.payload],
+      };
+    case TaskActionType.UPDATE_TASK_STATUS:
+      return {
+        ...state,
+        tasks: state.tasks.map((task) =>
+          task.id === action.payload.id ? { ...task, status: action.payload.status } : task
+        ),
       };
     default:
       return state;
@@ -48,11 +55,13 @@ const TaskContext = createContext<{
   state: TaskState;
   actions: {
     addTask: (task: Task) => void;
+    updateTaskStatus: (id: number, status: TaskStatus) => void;
   };
 }>({
   state: initialState,
   actions: {
     addTask: () => {},
+    updateTaskStatus: () => {},
   },
 });
 
@@ -64,6 +73,9 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const actions = {
     addTask: (task: Task) => {
       dispatch({ type: TaskActionType.ADD_TASK, payload: task });
+    },
+    updateTaskStatus: (id: number, status: TaskStatus) => {
+      dispatch({ type: TaskActionType.UPDATE_TASK_STATUS, payload: { id, status } });
     },
   };
 
@@ -77,8 +89,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 // Custom hook for consuming the context
 export const useTaskContext = () => {
   const context = useContext(TaskContext);
-  if(!context){
-    throw new Error('useTaskContext must be used inside the TaskProvider')
+  if (!context) {
+    throw new Error('useTaskContext must be used inside the TaskProvider');
   }
   return context;
-}
+};
