@@ -28,7 +28,7 @@ const TaskAddForm = () => {
 
   return (
 
-      <View className="mb-4 border-gray-200 border-2 p-3">
+      <View className="mb-2 border-gray-200 border-2 p-3">
         <Text className="text-xl font-semibold mb-4">Add a New Task</Text>
 
         <View className="mb-3">
