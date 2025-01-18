@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, Button, Alert, Keyboard, TouchableWithoutFeedback } from "react-native";
 import { useTaskContext } from "@/context/TaskContext";
+import { TaskStatus } from "@/types/TaskStatus";
 
 const TaskAddForm = () => {
   const { actions } = useTaskContext(); // Access the addTask function from TaskContext
@@ -17,7 +18,7 @@ const TaskAddForm = () => {
       id: Date.now(), // Generate a unique ID
       title,
       description,
-      status: "pending", // Add a default status
+      status: TaskStatus.PENDING, // Add a default status
     });
     Alert.alert("Success", "Add Task succesfully.");
     setTitle(""); // Clear form inputs
