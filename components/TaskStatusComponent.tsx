@@ -9,7 +9,7 @@ const TaskStatusComponent = ({ index }: { index: number }) => {
 
     const handleStatusChange = (newStatus: TaskStatus) => {
     if (newStatus !== status) {
-        actions.updateTaskStatus(id, newStatus); // Update the status using your context action
+        actions.updateTaskStatus(index, newStatus); // Update the status using your context action
     }
     };
     return (

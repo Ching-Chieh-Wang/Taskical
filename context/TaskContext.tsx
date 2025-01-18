@@ -28,7 +28,7 @@ enum TaskActionType {
 // Define the action shape
 type TaskAction =
   | { type: TaskActionType.ADD_TASK; payload: Task }
-  | { type: TaskActionType.UPDATE_TASK_STATUS; payload: { id: number; status: TaskStatus } };
+  | { type: TaskActionType.UPDATE_TASK_STATUS; payload: { idx: number; status: TaskStatus } }
 
 // Reducer function
 const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
@@ -39,6 +39,13 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
         tasks: [...state.tasks, action.payload],
       };
     case TaskActionType.UPDATE_TASK_STATUS:
+      const {idx,status}=action.payload;
+      const updatedTasks= state.tasks;
+      updatedTasks[idx].status=status
+      return {
+        ...state,
+        tasks:updatedTasks
+      };
       return {
         ...state,
         tasks: state.tasks.map((task) =>
@@ -55,7 +62,7 @@ const TaskContext = createContext<{
   state: TaskState;
   actions: {
     addTask: (task: Task) => void;
-    updateTaskStatus: (id: number, status: TaskStatus) => void;
+    updateTaskStatus: (idx:number, status: TaskStatus) => void;
   };
 }>({
   state: initialState,
@@ -74,8 +81,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     addTask: (task: Task) => {
       dispatch({ type: TaskActionType.ADD_TASK, payload: task });
     },
-    updateTaskStatus: (id: number, status: TaskStatus) => {
-      dispatch({ type: TaskActionType.UPDATE_TASK_STATUS, payload: { id, status } });
+    updateTaskStatus: (idx: number, status: TaskStatus) => {
+      dispatch({ type: TaskActionType.UPDATE_TASK_STATUS, payload: { idx, status } });
     },
   };
 
