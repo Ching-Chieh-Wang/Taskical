@@ -1,15 +1,15 @@
-import React, { createContext, useReducer, useContext, ReactNode, act } from 'react';
+import React, { createContext, useReducer, useContext, ReactNode } from 'react';
 import { Alert } from "react-native";
 import { TaskStatus } from '@/types/TaskStatus';
 import { Task } from '@/types/Task';
 
 // Define the state shape
 interface TaskState {
-  tasks: Task[]; // Tracks the list of tasks
-  editingIdx: number; // Track which index task is now updating, set -1 for no editing session
+  tasks: Task[];
+  editingIdx: number;
 }
 
-// Hard-coded mock data for tasks
+// Mock data
 const mockTasks: Task[] = [
   { id: 1, title: 'Task One', description: 'This is the first task', status: TaskStatus.PENDING },
   { id: 2, title: 'Task Two', description: 'This is the second task', status: TaskStatus.COMPLETE },
@@ -19,132 +19,108 @@ const mockTasks: Task[] = [
 // Initial state
 const initialState: TaskState = {
   tasks: mockTasks,
-  editingIdx: -1, // set -1 for no editing session
+  editingIdx: -1,
 };
 
-// Define action types as an enum
+// Action types
 enum TaskActionType {
-  ADD_TASK = 'ADD_TASK',
-  UPDATE_TASK_STATUS = 'UPDATE_TASK_STATUS',
+  SET_TASKS = 'SET_TASKS',
   START_EDITING_TASK = 'START_EDITING_TASK',
   END_EDITING_TASK = 'END_EDITING_TASK',
-  UPDATE_TASK = 'UPDATE_TASK',
-  DELETE_TASK = 'DELETE_TASK'
 }
 
-// Define the action shape
+// Action shape
 type TaskAction =
-  | { type: TaskActionType.ADD_TASK; payload: Task }
-  | { type: TaskActionType.UPDATE_TASK_STATUS; payload: { idx: number; status: TaskStatus } }
-  | { type: TaskActionType.START_EDITING_TASK; payload: { index: number; } }
-  | { type: TaskActionType.END_EDITING_TASK; }
-  | { type: TaskActionType.UPDATE_TASK; payload: Task }
-  | { type: TaskActionType.DELETE_TASK; payload: number }
+  | { type: TaskActionType.SET_TASKS; payload: { tasks: Task[] } }
+  | { type: TaskActionType.START_EDITING_TASK; payload: { idx: number } }
+  | { type: TaskActionType.END_EDITING_TASK }
 
 // Reducer function
 const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
   switch (action.type) {
-    case TaskActionType.ADD_TASK:
+    case TaskActionType.SET_TASKS:
       return {
         ...state,
-        tasks: [...state.tasks, action.payload],
-      };
-    case TaskActionType.UPDATE_TASK_STATUS:
-      const {idx,status}=action.payload;
-      const updatedTasks= state.tasks;
-      updatedTasks[idx].status=status
-      return {
-        ...state,
-        tasks:updatedTasks
+        tasks: action.payload.tasks,
       };
     case TaskActionType.START_EDITING_TASK:
       return {
         ...state,
-        editingIdx: action.payload.index
+        editingIdx: action.payload.idx,
       };
     case TaskActionType.END_EDITING_TASK:
       return {
         ...state,
-        editingIdx: -1, // set -1 for no editing session
-      }
-    case TaskActionType.UPDATE_TASK: {
-      const updatedTasks=state.tasks;
-      updatedTasks[state.editingIdx]=action.payload;
-      return {
-        ...state,
-        tasks: updatedTasks
-      }
-    }
-    case TaskActionType.DELETE_TASK: {
-      const idx = action.payload;
-      const updatedTasks = [
-        ...state.tasks.slice(0, idx), // All elements before the index
-        ...state.tasks.slice(idx + 1), // All elements after the index
-      ];
-      return {
-        ...state,
-        tasks: updatedTasks,
+        editingIdx: -1,
       };
-    }
     default:
       return state;
   }
 };
 
-// Context definition
 const TaskContext = createContext<{
   state: TaskState;
   actions: {
     addTask: (task: Task) => boolean;
-    updateTaskStatus: (idx:number, status: TaskStatus) => void;
-    startEditingTask: (idx: number) => void;
+    updateTaskStatus: (id: number, status: TaskStatus) => void;
+    startEditingTask: (id: number) => void;
     endEditingTask: () => void;
-    updateTask: (task: Task) => void;
-    deleteTask: (idx: number) =>void;
+    updateTask: (id: number, task: Task) => void;
+    deleteTask: (id: number) => void;
   };
 }>({
   state: initialState,
   actions: {
-    addTask: () => {return false},
+    addTask: () => false,
     updateTaskStatus: () => { },
     startEditingTask: () => { },
     endEditingTask: () => { },
     updateTask: () => { },
-    deleteTask: ()=>{},
+    deleteTask: () => { },
   },
 });
 
-// Provider component
+// Provider
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(taskReducer, initialState);
 
-  // Define the actions object
+  // Actions
   const actions = {
     addTask: (task: Task) => {
-      if(validateTaskInput(task)){
-        Alert.alert("Success", "Add Task succesfully.");
-        dispatch({ type: TaskActionType.ADD_TASK, payload: task });
-        return true;
-      }
-      return false;
+      if (!isValidTaskInput(task)) return false;
+      Alert.alert("Success", "Task added successfully.");
+      const updatedTasks = [task, ...state.tasks];
+      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks } });
+      return true;
     },
-    updateTaskStatus: (idx: number, status: TaskStatus) => {
-      dispatch({ type: TaskActionType.UPDATE_TASK_STATUS, payload: { idx, status } });
+    updateTaskStatus: (id: number, status: TaskStatus) => {
+      const updatedTasks = state.tasks.map((task) =>
+        task.id === id ? { ...task, status } : task
+      );
+      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks } });
     },
-    startEditingTask: (index: number) => {
-      dispatch({ type: TaskActionType.START_EDITING_TASK, payload: { index } });
+    deleteTask: (id: number) => {
+
+      // Update tasks by removing the item at the given id
+      const updatedTasks = state.tasks.filter((task) => task.id !== id);
+
+      // Dispatch updated tasks and originalTasks
+      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks } });
+
+    },
+    startEditingTask: (idx: number) => {
+      dispatch({ type: TaskActionType.START_EDITING_TASK, payload: { idx } });
     },
     endEditingTask: () => {
       dispatch({ type: TaskActionType.END_EDITING_TASK });
     },
-    updateTask: (task: Task) => {
-      if(validateTaskInput(task)){
-        dispatch({ type: TaskActionType.UPDATE_TASK, payload: task });
-        dispatch({type: TaskActionType.END_EDITING_TASK});
-      }
-    },
-    deleteTask: (idx: number)=>{
-      dispatch({type: TaskActionType.DELETE_TASK, payload:idx});
+    updateTask: (id: number, task: Task) => {
+      if(!isValidTaskInput(task))return;
+      const updatedTasks = state.tasks.map((oldTask) =>
+        oldTask.id === id ? task : oldTask
+      );
+      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks } });
+      dispatch({ type: TaskActionType.END_EDITING_TASK })
     }
   };
 
@@ -155,16 +131,16 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-const validateTaskInput = (task: Task): boolean => {
-  const { title, description } = task;
-  if (title.trim() === '' || description.trim() === '') {
-    alert('Title and description cannot be empty.');
+// Validation function
+const isValidTaskInput = (task: Task): boolean => {
+  if (!task.title.trim() || !task.description.trim()) {
+    Alert.alert('Error', 'Title and description cannot be empty.');
     return false;
   }
   return true;
 };
 
-// Custom hook for consuming the context
+// Hook
 export const useTaskContext = () => {
   const context = useContext(TaskContext);
   if (!context) {

@@ -9,8 +9,6 @@ const Task = ({ index }: { index: number }) => {
   const { state } = useTaskContext();
   const {  title } = state.tasks[index];
 
-
-
   return (
     <View className="flex gap-y-2 p-4  border-gray-300 border-2 rounded-2xl">
       <View className='flex-row justify-between items-center'>

@@ -5,11 +5,11 @@ import React from 'react'
 
 const TaskStatusComponent = ({ index }: { index: number }) => {
     const { state, actions } = useTaskContext(); 
-    const {id, status} = state.tasks[index]
+    const { id, status} = state.tasks[index]
 
     const handleStatusChange = (newStatus: TaskStatus) => {
     if (newStatus !== status) {
-        actions.updateTaskStatus(index, newStatus); // Update the status using your context action
+        actions.updateTaskStatus(id, newStatus); // Update the status using context action
     }
     };
     return (
