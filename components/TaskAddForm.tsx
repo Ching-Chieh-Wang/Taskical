@@ -1,34 +1,33 @@
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Keyboard,  } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Keyboard } from "react-native";
 import { useTaskContext } from "@/context/TaskContext";
 import { TaskStatus } from "@/types/TaskStatus";
 
-const TaskAddForm = () => {
-  const { actions } = useTaskContext(); // Access the addTask function from TaskContext
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+const TaskAddForm: React.FC = () => {
+  const { actions } = useTaskContext();
+  const [title, setTitle] = useState<string>(""); // Task title
+  const [description, setDescription] = useState<string>(""); // Task description
 
+  // Add a new task and reset the form if successful
   const handleAddTask = () => {
-
-    const success= actions.addTask({
-      id: Date.now(), // Generate a unique ID
+    const success = actions.addTask({
+      id: Date.now(),
       title,
       description,
-      status: TaskStatus.PENDING, // Add a default status
+      status: TaskStatus.PENDING,
     });
 
-    if(success)reset();
+    if (success) resetForm();
   };
 
-
-  const reset = ()=>{
-    setTitle(""); // Clear form inputs
+  // Reset the form and dismiss the keyboard
+  const resetForm = () => {
+    setTitle("");
     setDescription("");
-    Keyboard.dismiss(); // Dismiss keyboard after adding a task
-  }
+    Keyboard.dismiss();
+  };
 
   return (
-
     <View className="mb-2 border-gray-200 border-2 p-3">
       <Text className="text-xl font-semibold mb-4">Add a New Task</Text>
 
@@ -55,11 +54,10 @@ const TaskAddForm = () => {
         />
       </View>
 
-      {/* Buttons */}
-      <View className='flex-row gap-x-4'>
+      <View className="flex-row gap-x-4">
         <TouchableOpacity
-          onPress={reset}
-          className="flex-1 px-4 py-2 bg-red-200  border-red-400 border-2  rounded-md"
+          onPress={resetForm}
+          className="flex-1 px-4 py-2 bg-red-200 border-red-400 border-2 rounded-md"
         >
           <Text className="text-red-600 text-center">Cancel</Text>
         </TouchableOpacity>
@@ -71,7 +69,6 @@ const TaskAddForm = () => {
         </TouchableOpacity>
       </View>
     </View>
-
   );
 };
 

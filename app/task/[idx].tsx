@@ -4,7 +4,7 @@ import React from 'react'
 import { useTaskContext } from '@/context/TaskContext';
 import TaskStatusComponent from '@/components/TaskStatusComponent';
 
-const Page = () => {  
+const Page: React.FC = () => {
   const {idx}=useLocalSearchParams<{idx?:string}>();
   const {state} =useTaskContext();
   const {title,description}=state.tasks[idx];

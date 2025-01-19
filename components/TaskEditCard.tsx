@@ -2,21 +2,30 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useTaskContext } from '@/context/TaskContext';
 import TaskStatusComponent from './TaskStatusComponent';
+import { Task } from '@/types/Task';
 
-const TaskEditCard = ({ index }: { index: number }) => {
+interface TaskEditCardProps {
+    index: number;
+}
+
+const TaskEditCard: React.FC<TaskEditCardProps> = ({ index }) => {
     const { state, actions } = useTaskContext();
     const task = state.tasks[index];
 
-    const [title, setTitle] = useState(task.title);
-    const [description, setDescription] = useState(task.description);
+    if (!task) {
+        return null; // Handle edge cases where the task doesn't exist
+    }
+
+    const [title, setTitle] = useState<string>(task.title);
+    const [description, setDescription] = useState<string>(task.description);
 
     const handleSave = () => {
-        const updatedTask= {...task,title,description}
-        actions.updateTask(task.id, updatedTask)
+        const updatedTask: Task = { ...task, title, description };
+        actions.updateTask(task.id, updatedTask);
     };
 
     return (
-        <View className="flex gap-y-4 p-4 bg-white rounded-lg shadow-lg ">
+        <View className="flex gap-y-4 p-4 bg-white rounded-lg shadow-lg">
             <Text className="text-lg font-semibold">Edit Task</Text>
 
             {/* Title Input */}
@@ -42,12 +51,11 @@ const TaskEditCard = ({ index }: { index: number }) => {
                 />
             </View>
 
-
             {/* Buttons */}
-            <View className='flex-row gap-x-4'>
+            <View className="flex-row gap-x-4">
                 <TouchableOpacity
                     onPress={actions.endEditingTask}
-                    className="flex-1 px-4 py-2 bg-red-200  border-red-400 border-2  rounded-md"
+                    className="flex-1 px-4 py-2 bg-red-200 border-red-400 border-2 rounded-md"
                 >
                     <Text className="text-red-600 text-center">Cancel</Text>
                 </TouchableOpacity>
@@ -58,7 +66,6 @@ const TaskEditCard = ({ index }: { index: number }) => {
                     <Text className="text-white text-center">Save</Text>
                 </TouchableOpacity>
             </View>
-
         </View>
     );
 };
