@@ -5,14 +5,15 @@ import { useTaskContext } from '@/context/TaskContext';
 import DeleteIcon from './icons/DeleteIcon';
 
 const TaskActionNav = ({ index }: { index: number }) => {
-  const { actions } = useTaskContext(); // Access actions from context
+  const { state, actions } = useTaskContext(); // Access actions from context
+  const {id} = state.tasks[index]
 
   const handleEdit = () => {
     actions.startEditingTask(index); // Trigger editing action for the task
   };
 
   const handleDelete = () => {
-    actions.deleteTask(index); // Trigger deleteTask action for the task
+    actions.deleteTask(id); // Trigger deleteTask action for the task
   };
 
   return (

@@ -12,7 +12,7 @@ const TaskEditCard = ({ index }: { index: number }) => {
 
     const handleSave = () => {
         const updatedTask= {...task,title,description}
-        actions.updateTask(updatedTask)
+        actions.updateTask(task.id, updatedTask)
     };
 
     return (
