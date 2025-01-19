@@ -1,50 +1,63 @@
-# Welcome to your Expo app 👋
+# Taskical
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Taskical is a React Native application designed for task management. With Taskical, you can easily create, update, and organize tasks. The app also features a filtering and searching mechanism to keep your tasks accessible.
 
-## Get started
+## Features
+- Add tasks with title and description.
+- Mark tasks as pending or complete.
+- Edit or delete tasks.
+- Filter and search tasks by their title or description.
 
-1. Install dependencies
+## Installation
 
+1. Clone this repository:
+   ```bash
+   git clone <repository-url>
+   cd Taskical
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Start the application:
    ```bash
-    npx expo start
+   npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## Usage
+1. Use the Add Task form to create new tasks.
+2. Click on a task to view or edit its details.
+3. Use the search bar to filter tasks by title or description.
+4. Use the status toggle buttons to switch between pending and complete tasks.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Technology Stack
+- **React Native**: UI and core functionality.
+- **Expo**: Development platform for React Native.
+- **TypeScript**: For type safety and better developer experience.
+- **Tailwind CSS**: For styling.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Context Management
+Taskical uses React Context API to manage the application state. It includes the following:
+- Task creation
+- Task status updates
+- Task filtering and searching
 
-## Get a fresh project
+## Folder Structure
+- \`components/\`: Contains reusable components like \`TaskActionNav\` and \`TaskEditCard\`.
+- \`context/\`: Contains the task management logic using React Context and Reducer.
+- \`types/\`: Defines TypeScript types and enums for better type safety.
 
-When you're ready, run:
+## Development
+Ensure that you have the following installed:
+- Node.js
+- npm or yarn
+- Expo CLI
 
-```bash
-npm run reset-project
-```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## License
+This project is licensed under the MIT License.
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Author
+Developed by Jingjie Wang
