@@ -12,7 +12,7 @@ Taskical is a React Native application designed for task management. With Taskic
 
 1. Clone this repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Ching-Chieh-Wang/Taskical.git
    cd Taskical
    ```
 
