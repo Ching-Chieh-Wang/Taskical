@@ -6,7 +6,9 @@ import { Task } from '@/types/Task';
 // Define the state shape
 interface TaskState {
   tasks: Task[];
+  originalTasks: Task[];
   editingIdx: number;
+  searchText: string;
 }
 
 // Mock data
@@ -19,7 +21,9 @@ const mockTasks: Task[] = [
 // Initial state
 const initialState: TaskState = {
   tasks: mockTasks,
+  originalTasks: mockTasks,
   editingIdx: -1,
+  searchText: "",
 };
 
 // Action types
@@ -27,13 +31,15 @@ enum TaskActionType {
   SET_TASKS = 'SET_TASKS',
   START_EDITING_TASK = 'START_EDITING_TASK',
   END_EDITING_TASK = 'END_EDITING_TASK',
+  SEARCH_TASK = 'SEARCH_TASK',
 }
 
 // Action shape
 type TaskAction =
-  | { type: TaskActionType.SET_TASKS; payload: { tasks: Task[] } }
+  | { type: TaskActionType.SET_TASKS; payload: { tasks: Task[], originalTasks: Task[] } }
   | { type: TaskActionType.START_EDITING_TASK; payload: { idx: number } }
   | { type: TaskActionType.END_EDITING_TASK }
+  | { type: TaskActionType.SEARCH_TASK; payload: { text: string } }
 
 // Reducer function
 const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
@@ -42,6 +48,7 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
       return {
         ...state,
         tasks: action.payload.tasks,
+        originalTasks: action.payload.originalTasks
       };
     case TaskActionType.START_EDITING_TASK:
       return {
@@ -53,6 +60,11 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
         ...state,
         editingIdx: -1,
       };
+    case TaskActionType.SEARCH_TASK:
+      return {
+        ...state,
+        searchText: action.payload.text
+      }
     default:
       return state;
   }
@@ -67,6 +79,7 @@ const TaskContext = createContext<{
     endEditingTask: () => void;
     updateTask: (id: number, task: Task) => void;
     deleteTask: (id: number) => void;
+    searchTask: (text: string) => void
   };
 }>({
   state: initialState,
@@ -77,6 +90,7 @@ const TaskContext = createContext<{
     endEditingTask: () => { },
     updateTask: () => { },
     deleteTask: () => { },
+    searchTask: () => { }
   },
 });
 
@@ -89,23 +103,28 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     addTask: (task: Task) => {
       if (!isValidTaskInput(task)) return false;
       Alert.alert("Success", "Task added successfully.");
-      const updatedTasks = [task, ...state.tasks];
-      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks } });
+      const updatedTasks = [task, ...state.originalTasks];
+      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks, originalTasks: updatedTasks } });
       return true;
     },
     updateTaskStatus: (id: number, status: TaskStatus) => {
       const updatedTasks = state.tasks.map((task) =>
         task.id === id ? { ...task, status } : task
       );
-      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks } });
+      const updatedOriginalTasks = state.originalTasks.map((task) =>
+        task.id === id ? { ...task, status } : task
+      );
+      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks, originalTasks: updatedOriginalTasks } });
     },
     deleteTask: (id: number) => {
 
       // Update tasks by removing the item at the given id
       const updatedTasks = state.tasks.filter((task) => task.id !== id);
 
+      const updatedOriginalTasks = state.originalTasks.filter((task) => task.id !== id);
+
       // Dispatch updated tasks and originalTasks
-      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks } });
+      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks, originalTasks: updatedOriginalTasks } });
 
     },
     startEditingTask: (idx: number) => {
@@ -115,13 +134,41 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: TaskActionType.END_EDITING_TASK });
     },
     updateTask: (id: number, task: Task) => {
-      if(!isValidTaskInput(task))return;
+      if (!isValidTaskInput(task)) return;
       const updatedTasks = state.tasks.map((oldTask) =>
         oldTask.id === id ? task : oldTask
       );
-      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks } });
+
+      const updatedOriginalTasks = state.originalTasks.map((oldTask) =>
+        oldTask.id === id ? task : oldTask
+      );
+      dispatch({ type: TaskActionType.SET_TASKS, payload: { tasks: updatedTasks, originalTasks: updatedOriginalTasks } });
       dispatch({ type: TaskActionType.END_EDITING_TASK })
-    }
+    },
+    searchTask: (text: string) => {
+      // Filter tasks by title or description based on the search text
+      let filteredTasks :Task[];
+      if (text.length) {
+        filteredTasks = state.originalTasks.filter(
+          (task) =>
+            task.title.toLowerCase().includes(text.toLowerCase()) ||
+            task.description.toLowerCase().includes(text.toLowerCase())
+        );
+      }
+      else{
+        filteredTasks=state.originalTasks
+      }
+
+      // Update the tasks in the state with the filtered results
+      dispatch({
+        type: TaskActionType.SET_TASKS,
+        payload: { tasks: filteredTasks, originalTasks: state.originalTasks },
+      });
+      dispatch({
+        type: TaskActionType.SEARCH_TASK, payload: { text }
+      })
+    },
+
   };
 
   return (
